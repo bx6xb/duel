@@ -1,10 +1,9 @@
 import { randomNumber } from "../utils/randomNumber"
 
+export const FULL_CIRCLE_RADIANS = 2 * Math.PI
+
 export class Hero {
-  heroRadius = 20
-  heroStep = 1
-  spellColor = "white"
-  gap = 10
+  heroRadius = 30
   mousePos: ArrayXY = [0, 0]
   canvas: HTMLCanvasElement
   ctx: CanvasRenderingContext2D
@@ -17,30 +16,23 @@ export class Hero {
     this.canvas = canvas
     this.ctx = canvas.getContext("2d")!
     this.rangeY = [
-      this.heroRadius + this.gap,
-      this.canvas.height - this.heroRadius - this.gap,
-    ] // range of hero line
+      this.heroRadius + 10,
+      this.canvas.height - this.heroRadius - 10,
+    ] // coordinates of hero line
     this.x = x
     this.y = randomNumber(this.rangeY[0], this.rangeY[1]) // random y init position
     this.isGoingDown = Boolean(Math.round(Math.random())) // random boolean value
 
     this.draw()
-    this.listen()
   }
 
   draw() {
-    // clears hero vertical line
-    this.ctx.clearRect(
-      this.x - this.heroRadius,
-      0,
-      this.heroRadius * 2,
-      this.canvas.height
-    )
+    this.clear()
 
-    // draws hero
+    // draws a hero
     this.ctx.beginPath()
     this.ctx.fillStyle = "white"
-    this.ctx.arc(this.x, this.y, this.heroRadius, 0, 2 * Math.PI)
+    this.ctx.arc(this.x, this.y, this.heroRadius, 0, FULL_CIRCLE_RADIANS)
     this.ctx.fill()
   }
   move() {
@@ -70,35 +62,26 @@ export class Hero {
 
     // updates hero direction
     if (this.isGoingDown) {
-      this.y += this.heroStep
+      this.y += 1
     } else {
-      this.y -= this.heroStep
+      this.y -= 1
     }
 
     // redraw
     this.draw()
   }
 
-  getMousePosCallback() {
-    const setMousePos = (mousePos: ArrayXY) => {
-      this.mousePos = mousePos
-    }
-    return setMousePos.bind(this)
-  } // for subscribing to changes in mouse position on canvas
-
-  listen() {
-    // tracks mouse position
-    this.canvas.onmousemove = (e: MouseEvent) => {
-      this.mousePos = [e.offsetX, e.offsetY]
-    }
+  setMousePos(mousePos: ArrayXY) {
+    this.mousePos = mousePos
   }
 
-  // data manipulation
-  getSpellColor() {
-    return this.spellColor
-  }
-  setSpellColor(spellColor: string) {
-    this.spellColor = spellColor
+  clear() {
+    this.ctx.clearRect(
+      this.x - this.heroRadius - 1,
+      this.y - this.heroRadius - 1,
+      this.heroRadius * 2 + 2,
+      this.heroRadius * 2 + 2
+    )
   }
 }
 
