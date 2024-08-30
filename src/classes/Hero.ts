@@ -37,10 +37,10 @@ export class Hero {
   }
   move() {
     // checks for mouse collision
-    const startX = this.x - 20
-    const endX = this.x + 20
-    const startY = this.y - 20
-    const endY = this.y + 20
+    const startX = this.x - this.heroRadius
+    const endX = this.x + this.heroRadius
+    const startY = this.y - this.heroRadius
+    const endY = this.y + this.heroRadius
 
     const mouseX = this.mousePos[0]
     const mouseY = this.mousePos[1]

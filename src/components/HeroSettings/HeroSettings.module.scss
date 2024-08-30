@@ -1,0 +1,10 @@
+.heroSettings {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 10px;
+  .input {
+    display: flex;
+    gap: 5px;
+  }
+}
