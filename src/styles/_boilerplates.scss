@@ -5,3 +5,10 @@
   padding: 0;
   box-sizing: border-box;
 }
+body {
+  color: var(--white-color);
+}
+button {
+  all: unset;
+  cursor: pointer;
+}
