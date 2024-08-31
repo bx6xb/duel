@@ -29,14 +29,14 @@ export class Hero {
   draw() {
     this.clear()
 
-    // draws a hero
+    // draw a hero
     this.ctx.beginPath()
     this.ctx.fillStyle = "white"
     this.ctx.arc(this.x, this.y, this.heroRadius, 0, FULL_CIRCLE_RADIANS)
     this.ctx.fill()
   }
   move() {
-    // checks for mouse collision
+    // check for mouse collision
     const startX = this.x - this.heroRadius
     const endX = this.x + this.heroRadius
     const startY = this.y - this.heroRadius
@@ -53,14 +53,14 @@ export class Hero {
       this.isGoingDown = false
     }
 
-    // checks for edge collision
+    // check for edge collision
     if (this.y <= this.rangeY[0]) {
       this.isGoingDown = true
     } else if (this.y >= this.rangeY[1]) {
       this.isGoingDown = false
     }
 
-    // updates hero direction
+    // update hero direction
     if (this.isGoingDown) {
       this.y += 1
     } else {

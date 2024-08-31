@@ -1,24 +1,25 @@
 import { MouseEvent, useEffect, useRef, useState } from "react"
 import s from "./Canvas.module.scss"
-import { ArrayXY, Hero } from "../../classes/Hero"
+import { Hero } from "../../classes/Hero"
 import { Spell } from "../../classes/Spell"
 import { checkHeroCollision } from "../../utils/checkHeroCollision"
 import { checkEdgeCollision } from "../../utils/checkEdgeCollision"
 import GameState, { HeroIndex } from "../../store/GameState"
-import ModalState from "../../store/ModalState"
 import { observer } from "mobx-react-lite"
+import { checkMouseClick } from "../../utils/checkMouseClick"
+import { getMousePos } from "../../utils/getMousePos"
 
 export const Canvas = observer(() => {
   // local state
   const [heroes, setHeroes] = useState<Hero[]>([]) // [left hero, right hero]
 
   // refs
+  const spells = useRef<Spell[][]>([[], []])
   const intervalsId = useRef<number[]>([])
   const cavnasRef = useRef<HTMLCanvasElement>(null)
-  const spells = useRef<Spell[][]>([[], []])
 
   useEffect(() => {
-    // creating heroes
+    // create heroes
     const leftHero = new Hero(cavnasRef.current!, 35)
     const rightHero = new Hero(cavnasRef.current!, 765)
 
@@ -34,58 +35,39 @@ export const Canvas = observer(() => {
 
   useEffect(() => {
     if (heroes.length) {
-      // move left hero
-      const id1 = setInterval(() => {
-        heroes[0].move.apply(heroes[0])
+      heroes.forEach((h, i) => {
+        const isLeftHero = i === 0
+        // move heroes
+        const heroId = setInterval(() => {
+          h.move.apply(h)
 
-        // checks edge collision
-        spells.current = spells.current.map(checkEdgeCollision)
+          spells.current = spells.current.map(checkEdgeCollision) // check edge collision
 
-        checkHeroCollision(spells.current, heroes, 0)
-      }, GameState.heroesSpeed[0])
+          checkHeroCollision(spells.current, heroes, i as HeroIndex)
+        }, GameState.heroesSpeed[i])
 
-      // move right hero
-      const id2 = setInterval(() => {
-        heroes[1].move.apply(heroes[1])
+        const spellId = setInterval(() => {
+          // create a new spell for each hero
+          const spell = new Spell(
+            cavnasRef.current!,
+            heroes[i].y,
+            heroes[i].x + (isLeftHero ? 50 : -50),
+            isLeftHero ? cavnasRef.current!.width : 0,
+            GameState.spellColor[i]
+          )
 
-        // checks edge collision
-        spells.current = spells.current.map(checkEdgeCollision)
+          spells.current[i] = [...spells.current[i], spell]
+        }, GameState.spellsSpawnTime[i])
 
-        checkHeroCollision(spells.current, heroes, 1)
-      }, GameState.heroesSpeed[1])
+        intervalsId.current.push(heroId, spellId)
+      })
 
       // move spells
-      const id3 = setInterval(() => {
+      const moveSpellsId = setInterval(() => {
         spells.current.map((sArr) => sArr.map((s) => s.move.apply(s)))
       }, 10)
 
-      // creates a new spell for left hero
-      const id4 = setInterval(() => {
-        const leftHeroSpell = new Spell(
-          cavnasRef.current!,
-          heroes[0].y,
-          heroes[0].x + 50,
-          cavnasRef.current!.width,
-          GameState.spellColor[0]
-        )
-
-        spells.current[0] = [...spells.current[0], leftHeroSpell]
-      }, GameState.spellsSpawnTime[0])
-
-      // creates a new spell for right hero
-      const id5 = setInterval(() => {
-        const rightHeroSpell = new Spell(
-          cavnasRef.current!,
-          heroes[1].y,
-          heroes[1].x - 50,
-          0,
-          GameState.spellColor[1]
-        )
-
-        spells.current[1] = [...spells.current[1], rightHeroSpell]
-      }, GameState.spellsSpawnTime[1])
-
-      intervalsId.current = [id1, id2, id3, id4, id5]
+      intervalsId.current.push(moveSpellsId)
 
       return () => {
         intervalsId.current!.map(clearInterval)
@@ -95,41 +77,15 @@ export const Canvas = observer(() => {
   }, [heroes, GameState.spellsSpawnTime, GameState.heroesSpeed])
 
   const onMouseMove = (e: MouseEvent<HTMLCanvasElement>) => {
-    // get mouse position
-    const rect = e.currentTarget.getBoundingClientRect()
-    const x = e.clientX - rect.left
-    const y = e.clientY - rect.top
-    const mousePos: ArrayXY = [x, y]
+    const mousePos = getMousePos(e) // get mouse position
 
-    heroes.map((h) => h.setMousePos(mousePos)) // get current position of cursor
+    heroes.map((h) => h.setMousePos(mousePos)) // set current position of cursor
   }
 
   const onClick = (e: MouseEvent<HTMLCanvasElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect()
-    const x = e.clientX - rect.left
-    const y = e.clientY - rect.top
-    const mousePos: ArrayXY = [x, y]
+    const mousePos = getMousePos(e) // get mouse position
 
-    // checks mouse click on hero
-    heroes.forEach((hero, i) => {
-      const xHeroCoords = [hero.x - hero.heroRadius, hero.x + hero.heroRadius]
-      const yHeroCoords = [hero.y - hero.heroRadius, hero.y + hero.heroRadius]
-
-      let xCollision = false
-      let yCollision = false
-
-      if (xHeroCoords[0] <= mousePos[0] && mousePos[0] <= xHeroCoords[1]) {
-        xCollision = true
-      }
-      if (yHeroCoords[0] <= mousePos[1] && mousePos[1] <= yHeroCoords[1]) {
-        yCollision = true
-      }
-
-      if (xCollision && yCollision) {
-        GameState.setCurrentHero(i as HeroIndex)
-        ModalState.setIsOpen(true)
-      }
-    })
+    heroes.forEach((h, i) => checkMouseClick(h, i, mousePos)) // check mouse click on hero
   }
 
   return (

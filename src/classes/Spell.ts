@@ -31,7 +31,7 @@ export class Spell {
   draw() {
     this.clear()
 
-    // draws a hero's spell
+    // draw a hero's spell
     this.ctx.beginPath()
     this.ctx.strokeStyle = this.spellColor
     this.ctx.lineWidth = 3
@@ -45,7 +45,7 @@ export class Spell {
     this.ctx.stroke()
   }
   move() {
-    // updates hero direction
+    // update hero direction
     if (this.startX > this.endX) {
       this.currentX -= 1
     } else {

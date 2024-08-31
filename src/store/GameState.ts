@@ -26,13 +26,13 @@ class Game {
   changeHeroSpeed(heroIndex: HeroIndex, speed: number) {
     const arr = [...this.heroesSpeed]
     arr[heroIndex] = speed
-    this.heroesSpeed = arr // gives new array to reactivate intervals
+    this.heroesSpeed = arr // give new array to reactivate intervals
   }
 
   changeSpellsSpawnTime(heroIndex: HeroIndex, speed: number) {
     const arr = [...this.spellsSpawnTime]
     arr[heroIndex] = speed
-    this.spellsSpawnTime = arr // gives new array to reactivate intervals
+    this.spellsSpawnTime = arr // give new array to reactivate intervals
   }
 }
 
