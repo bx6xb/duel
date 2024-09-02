@@ -45,6 +45,10 @@ class HeroesState {
     } // to trigger render
   }
 
+  resetMousePos() {
+    this.heroes.map(hero => hero.resetMousePos())
+  }
+
   resetState() {
     this.heroes.forEach((hero) => hero.clear())
     this.heroes = []

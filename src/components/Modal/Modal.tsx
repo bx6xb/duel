@@ -17,11 +17,7 @@ export const Modal = observer(() => {
   const spellColorInputValue = HeroesState.getSpellColor(currentHeroId)
 
   useEffect(() => {
-    // reset mouse position to avoid bug
-    HeroesState.heroes.forEach((hero) => {
-      console.log(hero)
-      hero.setMousePos([0, 0])
-    })
+    HeroesState.resetMousePos() // reset mouse position to avoid bug
   }, [])
 
   return (

@@ -84,6 +84,10 @@ export class Hero extends Canvas {
     this.mousePos = mousePos
   }
 
+  resetMousePos() {
+    this.mousePos = [0, 0]
+  }
+
   clear() {
     this.ctx.clearRect(
       this.x - this.heroRadius - 1,

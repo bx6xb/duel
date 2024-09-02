@@ -99,6 +99,10 @@ export const Canvas = observer(() => {
     ) // check mouse click on hero
   }
 
+  const onMouseOut = () => {
+    HeroesState.resetMousePos() // reset mouse position to avoid bug
+  }
+
   return (
     <div className={s.canvas}>
       <canvas
@@ -107,6 +111,7 @@ export const Canvas = observer(() => {
         height={500}
         onMouseMove={onMouseMove}
         onClick={onClick}
+        onMouseOut={onMouseOut}
       />
     </div>
   )
