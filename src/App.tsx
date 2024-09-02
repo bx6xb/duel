@@ -10,6 +10,7 @@ import { observer } from "mobx-react-lite"
 import HeroesState from "./store/HeroesState"
 import SpellsState from "./store/SpellsState"
 import { InputType } from "./components/HeroSettings/Input/Input"
+import ModalState from "./store/ModalState"
 
 const App = observer(() => {
   const heroSettingsProps: HeroSettingsProps[] = HeroesState.heroes.map(
@@ -56,7 +57,7 @@ const App = observer(() => {
 
   return (
     <div className="App">
-      <Modal />
+      {ModalState.isOpen && <Modal />}
       <Scoreboard />
       <HeroSettings {...heroSettingsProps[0]} />
       <Canvas />

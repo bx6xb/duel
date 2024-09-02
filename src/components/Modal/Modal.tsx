@@ -1,4 +1,4 @@
-import { ChangeEvent } from "react"
+import { ChangeEvent, useEffect } from "react"
 import s from "./Modal.module.scss"
 import ModalState from "../../store/ModalState"
 import { observer } from "mobx-react-lite"
@@ -16,7 +16,15 @@ export const Modal = observer(() => {
 
   const spellColorInputValue = HeroesState.getSpellColor(currentHeroId)
 
-  return ModalState.isOpen ? (
+  useEffect(() => {
+    // reset mouse position to avoid bug
+    HeroesState.heroes.forEach((hero) => {
+      console.log(hero)
+      hero.setMousePos([0, 0])
+    })
+  }, [])
+
+  return (
     <>
       <div className={s.modal}>
         <button onClick={close}>X</button>
@@ -25,5 +33,5 @@ export const Modal = observer(() => {
       </div>
       <div className={s.blackScreen} />
     </>
-  ) : null
+  )
 })
