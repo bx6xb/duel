@@ -1,8 +1,7 @@
 import { ArrayXY, Hero } from "../classes/Hero"
-import GameState, { HeroIndex } from "../store/GameState"
 import ModalState from "../store/ModalState"
 
-export const checkMouseClick = (hero: Hero, i: number, mousePos: ArrayXY) => {
+export const checkMouseClick = (hero: Hero, id: string, mousePos: ArrayXY) => {
   const xHeroCoords = [hero.x - hero.heroRadius, hero.x + hero.heroRadius]
   const yHeroCoords = [hero.y - hero.heroRadius, hero.y + hero.heroRadius]
 
@@ -17,7 +16,7 @@ export const checkMouseClick = (hero: Hero, i: number, mousePos: ArrayXY) => {
   }
 
   if (xCollision && yCollision) {
-    GameState.setCurrentHero(i as HeroIndex)
+    ModalState.setCurrentHeroId(id)
     ModalState.setIsOpen(true)
   }
 }

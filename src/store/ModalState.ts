@@ -2,6 +2,7 @@ import { makeAutoObservable } from "mobx"
 
 class Modal {
   isOpen = false
+  currentHeroId = ""
 
   constructor() {
     makeAutoObservable(this)
@@ -9,6 +10,10 @@ class Modal {
 
   setIsOpen(isOpen: boolean) {
     this.isOpen = isOpen
+  }
+
+  setCurrentHeroId(currentHeroId: string) {
+    this.currentHeroId = currentHeroId
   }
 }
 

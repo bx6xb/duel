@@ -1,91 +1,102 @@
-import { MouseEvent, useEffect, useRef, useState } from "react"
+import { MouseEvent, useEffect, useRef } from "react"
 import s from "./Canvas.module.scss"
 import { Hero } from "../../classes/Hero"
 import { Spell } from "../../classes/Spell"
 import { checkHeroCollision } from "../../utils/checkHeroCollision"
 import { checkEdgeCollision } from "../../utils/checkEdgeCollision"
-import GameState, { HeroIndex } from "../../store/GameState"
 import { observer } from "mobx-react-lite"
 import { checkMouseClick } from "../../utils/checkMouseClick"
 import { getMousePos } from "../../utils/getMousePos"
+import HeroesState from "../../store/HeroesState"
+import SpellsState from "../../store/SpellsState"
 
 export const Canvas = observer(() => {
-  // local state
-  const [heroes, setHeroes] = useState<Hero[]>([]) // [left hero, right hero]
-
   // refs
-  const spells = useRef<Spell[][]>([[], []])
   const intervalsId = useRef<number[]>([])
   const cavnasRef = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
     // create heroes
     const leftHero = new Hero(cavnasRef.current!, 35)
-    const rightHero = new Hero(cavnasRef.current!, 765)
+    const rightHero = new Hero(cavnasRef.current!, 765, "left")
 
-    const heroesArray = [leftHero, rightHero]
-
-    setHeroes(heroesArray)
+    HeroesState.addHeroes(leftHero, rightHero)
 
     return () => {
-      heroesArray.map((h) => h.clear())
-      spells.current.map((sArr) => sArr.map((s) => s.clear()))
+      // clear state
+      HeroesState.resetState()
+      SpellsState.resetState()
     }
   }, [])
 
   useEffect(() => {
-    if (heroes.length) {
-      heroes.forEach((h, i) => {
-        const isLeftHero = i === 0
-        // move heroes
-        const heroId = setInterval(() => {
-          h.move.apply(h)
-
-          spells.current = spells.current.map(checkEdgeCollision) // check edge collision
-
-          checkHeroCollision(spells.current, heroes, i as HeroIndex)
-        }, GameState.heroesSpeed[i])
-
-        const spellId = setInterval(() => {
-          // create a new spell for each hero
-          const spell = new Spell(
-            cavnasRef.current!,
-            heroes[i].y,
-            heroes[i].x + (isLeftHero ? 50 : -50),
-            isLeftHero ? cavnasRef.current!.width : 0,
-            GameState.spellColor[i]
-          )
-
-          spells.current[i] = [...spells.current[i], spell]
-        }, GameState.spellsSpawnTime[i])
-
-        intervalsId.current.push(heroId, spellId)
-      })
-
+    if (HeroesState.heroes.length) {
       // move spells
       const moveSpellsId = setInterval(() => {
-        spells.current.map((sArr) => sArr.map((s) => s.move.apply(s)))
-      }, 10)
+        SpellsState.spells.forEach((data) =>
+          data.spells.forEach((spell) => spell.move.apply(spell))
+        )
+      }, 1)
 
       intervalsId.current.push(moveSpellsId)
+
+      HeroesState.heroes.forEach((hero) => {
+        const heroId = hero.id
+
+        const isAttackDirectionIsRight = hero.attackDirection === "right"
+
+        // move heroes
+        const heroIntervalId = setInterval(() => {
+          hero.move.apply(hero)
+
+          const filteredSpells1 = checkEdgeCollision(
+            SpellsState.spells.find((data) => data.id === heroId)!.spells
+          ) // check edge collision
+
+          const filteredSpells2 = checkHeroCollision(
+            heroId,
+            filteredSpells1,
+            HeroesState.heroes.find((hero) => hero.id !== heroId)! // find enemy hero
+          ) // check hero collision
+
+          SpellsState.setSpells(heroId, filteredSpells2)
+        }, HeroesState.heroesData[heroId].speed)
+
+        // create a new spell for each hero
+        const spellIntervalId = setInterval(() => {
+          const spell = new Spell(
+            cavnasRef.current!,
+            hero.y,
+            hero.x + (isAttackDirectionIsRight ? 50 : -50),
+            isAttackDirectionIsRight ? cavnasRef.current!.width : 0,
+            HeroesState.heroesData[heroId].spellColor
+          )
+
+          SpellsState.addSpell(heroId, spell)
+        }, SpellsState.spells.find((data) => data.id === heroId)!.spellsSpawnTime)
+
+        intervalsId.current.push(heroIntervalId, spellIntervalId)
+      })
 
       return () => {
         intervalsId.current!.map(clearInterval)
         intervalsId.current = []
       }
     }
-  }, [heroes, GameState.spellsSpawnTime, GameState.heroesSpeed])
+  }, [HeroesState.heroes, HeroesState.heroesData, SpellsState.spells])
 
   const onMouseMove = (e: MouseEvent<HTMLCanvasElement>) => {
     const mousePos = getMousePos(e) // get mouse position
 
-    heroes.map((h) => h.setMousePos(mousePos)) // set current position of cursor
+    HeroesState.heroes.map((hero) => hero.setMousePos(mousePos)) // set current position of cursor
   }
 
   const onClick = (e: MouseEvent<HTMLCanvasElement>) => {
     const mousePos = getMousePos(e) // get mouse position
 
-    heroes.forEach((h, i) => checkMouseClick(h, i, mousePos)) // check mouse click on hero
+    HeroesState.heroes.forEach((hero) =>
+      checkMouseClick(hero, hero.id, mousePos)
+    ) // check mouse click on hero
   }
 
   return (

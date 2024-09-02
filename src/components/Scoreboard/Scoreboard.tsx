@@ -1,11 +1,13 @@
 import { observer } from "mobx-react-lite"
-import Game from "../../store/GameState"
 import s from "./Scoreboard.module.scss"
+import HeroesState from "../../store/HeroesState"
 
 export const Scoreboard = observer(() => {
   return (
     <div className={s.scoreboard}>
-      {Game.score[0]} : {Game.score[1]}
+      {HeroesState.heroes
+        .map((hero) => HeroesState.heroesData[hero.id].score)
+        .join(" : ")}
     </div>
   )
 })

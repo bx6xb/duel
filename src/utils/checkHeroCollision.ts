@@ -1,23 +1,21 @@
 import { Hero } from "../classes/Hero"
 import { Spell } from "../classes/Spell"
-import Game, { HeroIndex } from "../store/GameState"
+import HeroesState from "../store/HeroesState"
 
 export const checkHeroCollision = (
-  spells: Spell[][],
-  heroes: Hero[],
-  heroIndex: HeroIndex
-) => {
-  spells[heroIndex] = spells[heroIndex].filter((s, i) => {
+  attackingHeroId: string,
+  spells: Spell[],
+  enemyHero: Hero
+) =>
+  spells.filter((s, i) => {
     if ([0, 1, 2].includes(i)) {
-      const enemyHeroIndex = heroIndex === 0 ? 1 : 0
-
       const xEnemyHeroCoords = [
-        heroes[enemyHeroIndex].x - heroes[enemyHeroIndex].heroRadius,
-        heroes[enemyHeroIndex].x + heroes[enemyHeroIndex].heroRadius,
+        enemyHero.x - enemyHero.heroRadius,
+        enemyHero.x + enemyHero.heroRadius,
       ]
       const yEnemyHeroCoords = [
-        heroes[enemyHeroIndex].y - heroes[enemyHeroIndex].heroRadius,
-        heroes[enemyHeroIndex].y + heroes[enemyHeroIndex].heroRadius,
+        enemyHero.y - enemyHero.heroRadius,
+        enemyHero.y + enemyHero.heroRadius,
       ]
 
       const xSpellCoords = [
@@ -50,7 +48,7 @@ export const checkHeroCollision = (
 
       if (isCollision) {
         s.clear()
-        Game.increaseScore(heroIndex)
+        HeroesState.increaseScore(attackingHeroId)
       }
 
       return !isCollision
@@ -58,4 +56,3 @@ export const checkHeroCollision = (
       return true
     }
   })
-}

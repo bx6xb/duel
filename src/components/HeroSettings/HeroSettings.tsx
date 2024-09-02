@@ -1,40 +1,24 @@
-import { ComponentPropsWithoutRef, Fragment } from "react"
 import s from "./HeroSettings.module.scss"
+import { Input, InputType } from "./Input/Input"
 
-type HeroSettingsProps = {
+export type HeroSettingsProps = {
   title: string
   inputs: InputType[]
-  className: string
+  className?: string
 }
 
-export type InputType = {
-  label: string
-} & Omit<ComponentPropsWithoutRef<"input">, "type" | "id">
-
 export const HeroSettings = ({
-  title,
-  inputs,
-  className,
+  title = "",
+  inputs = [],
+  className = "",
 }: HeroSettingsProps) => {
-  const mappedInputs = inputs.map((i) => {
-    const { label, ...restInputProps } = i
-
-    return (
-      <Fragment key={label}>
-        <label htmlFor={label}>{label}</label>
-        <div className={s.input}>
-          {restInputProps.min}
-          <input type="range" id={label} {...restInputProps} />
-          {restInputProps.max}
-        </div>
-        {restInputProps.value}
-      </Fragment>
-    )
-  })
+  const mappedInputs = inputs.map((data) => (
+    <Input key={data.label} {...data} />
+  ))
 
   return (
     <div className={`${s.heroSettings} ${className || ""}`}>
-      {title}
+      <h3>{title}</h3>
       {mappedInputs}
     </div>
   )

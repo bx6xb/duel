@@ -1,0 +1,23 @@
+.inputWrapper {
+  margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  label {
+    font-size: 20px;
+  }
+
+  .input {
+    display: flex;
+    gap: 5px;
+  }
+
+  .currentValue {
+    text-align: center;
+  }
+}
+
+.input {
+  display: flex;
+  gap: 5px;
+}

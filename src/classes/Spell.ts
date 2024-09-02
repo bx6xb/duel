@@ -1,9 +1,8 @@
+import { Canvas } from "./Canvas"
 import { FULL_CIRCLE_RADIANS } from "./Hero"
 
-export class Spell {
+export class Spell extends Canvas {
   spellRadius = 10
-  canvas: HTMLCanvasElement
-  ctx: CanvasRenderingContext2D
   y: number
   startX: number
   currentX: number
@@ -17,8 +16,8 @@ export class Spell {
     endX: number,
     spellColor: string
   ) {
-    this.canvas = canvas
-    this.ctx = canvas.getContext("2d")!
+    super(canvas)
+
     this.y = y
     this.startX = startX
     this.currentX = startX

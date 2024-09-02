@@ -1,32 +1,40 @@
 import { randomNumber } from "../utils/randomNumber"
+import { v4 } from "uuid"
+import { Canvas } from "./Canvas"
 
 export const FULL_CIRCLE_RADIANS = 2 * Math.PI
 
-export class Hero {
-  heroRadius = 30
-  mousePos: ArrayXY = [0, 0]
-  canvas: HTMLCanvasElement
-  ctx: CanvasRenderingContext2D
-  rangeY: ArrayXY
+export class Hero extends Canvas {
+  id: string
   x: number
   y: number
-  isGoingDown: boolean
+  attackDirection: AttackDirection
+  heroRadius = 30
+  private rangeY: ArrayXY
+  private isGoingDown: boolean
+  private mousePos: ArrayXY = [0, 0]
 
-  constructor(canvas: HTMLCanvasElement, x: number) {
-    this.canvas = canvas
-    this.ctx = canvas.getContext("2d")!
+  constructor(
+    canvas: HTMLCanvasElement,
+    x: number,
+    attackDirection: AttackDirection = "right"
+  ) {
+    super(canvas)
+
+    this.id = v4()
+    this.x = x
+    this.attackDirection = attackDirection
     this.rangeY = [
       this.heroRadius + 10,
       this.canvas.height - this.heroRadius - 10,
     ] // coordinates of hero line
-    this.x = x
     this.y = randomNumber(this.rangeY[0], this.rangeY[1]) // random y init position
     this.isGoingDown = Boolean(Math.round(Math.random())) // random boolean value
 
     this.draw()
   }
 
-  draw() {
+  private draw() {
     this.clear()
 
     // draw a hero
@@ -35,6 +43,7 @@ export class Hero {
     this.ctx.arc(this.x, this.y, this.heroRadius, 0, FULL_CIRCLE_RADIANS)
     this.ctx.fill()
   }
+
   move() {
     // check for mouse collision
     const startX = this.x - this.heroRadius
@@ -86,3 +95,4 @@ export class Hero {
 }
 
 export type ArrayXY = [number, number]
+type AttackDirection = "left" | "right"

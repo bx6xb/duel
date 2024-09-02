@@ -1,73 +1,66 @@
 import { ChangeEvent } from "react"
 import { Canvas } from "./components/Canvas/Canvas"
-import { HeroSettings, InputType } from "./components/HeroSettings/HeroSettings"
+import {
+  HeroSettings,
+  HeroSettingsProps,
+} from "./components/HeroSettings/HeroSettings"
 import { Modal } from "./components/Modal/Modal"
 import { Scoreboard } from "./components/Scoreboard/Scoreboard"
-import GameState from "./store/GameState"
 import { observer } from "mobx-react-lite"
+import HeroesState from "./store/HeroesState"
+import SpellsState from "./store/SpellsState"
+import { InputType } from "./components/HeroSettings/Input/Input"
 
 const App = observer(() => {
-  const leftHeroInputs: InputType[] = [
-    {
-      label: "Fire rate",
-      min: 800,
-      max: 2000,
-      step: 100,
-      value: GameState.spellsSpawnTime[0],
-      onChange: (e: ChangeEvent<HTMLInputElement>) => {
-        GameState.changeSpellsSpawnTime(0, +e.currentTarget.value)
-      },
-    },
-    {
-      label: "Hero speed",
-      min: 1,
-      max: 10,
-      step: 1,
-      value: GameState.heroesSpeed[0],
-      onChange: (e: ChangeEvent<HTMLInputElement>) => {
-        GameState.changeHeroSpeed(0, +e.currentTarget.value)
-      },
-    },
-  ]
+  const heroSettingsProps: HeroSettingsProps[] = HeroesState.heroes.map(
+    (hero, i) => {
+      const id = hero.id
 
-  const rightHeroInputs: InputType[] = [
-    {
-      label: "Fire rate",
-      min: 800,
-      max: 2000,
-      step: 100,
-      value: GameState.spellsSpawnTime[1],
-      onChange: (e: ChangeEvent<HTMLInputElement>) => {
-        GameState.changeSpellsSpawnTime(1, +e.currentTarget.value)
-      },
-    },
-    {
-      label: "Hero speed",
-      min: 1,
-      max: 10,
-      step: 1,
-      value: GameState.heroesSpeed[1],
-      onChange: (e: ChangeEvent<HTMLInputElement>) => {
-        GameState.changeHeroSpeed(1, +e.currentTarget.value)
-      },
-    },
-  ]
+      const value = SpellsState.spells.find(
+        (data) => data.id === id
+      )!.spellsSpawnTime
+
+      const inputs: InputType[] = [
+        {
+          label: "Fire rate",
+          min: 800,
+          minLabel: "0.8s",
+          max: 2000,
+          maxLabel: "2s",
+          step: 100,
+          value: value,
+          valueLabel: `${value / 1000}s`,
+          onChange: (e: ChangeEvent<HTMLInputElement>) => {
+            SpellsState.changeSpellsSpawnTime(id, +e.currentTarget.value)
+          },
+        },
+        {
+          label: "Hero speed",
+          min: 1,
+          max: 10,
+          step: 1,
+          value: HeroesState.heroesData[id].speed,
+          onChange: (e: ChangeEvent<HTMLInputElement>) => {
+            HeroesState.changeSpeed(id, +e.currentTarget.value)
+          },
+        },
+      ]
+
+      return {
+        title: `Hero ${i + 1}`,
+        inputs,
+        className: i === 0 ? "leftHeroSettings" : "rightHeroSettings",
+      }
+    }
+  )
 
   return (
     <div className="App">
       <Modal />
       <Scoreboard />
-      <HeroSettings
-        title="Hero 1"
-        inputs={leftHeroInputs}
-        className="leftHeroSettings"
-      />
+      <HeroSettings {...heroSettingsProps[0]} />
       <Canvas />
-      <HeroSettings
-        title="Hero 2"
-        inputs={rightHeroInputs}
-        className="rightHeroSettings"
-      />
+      <HeroSettings {...heroSettingsProps[1]} />
     </div>
   )
 })
