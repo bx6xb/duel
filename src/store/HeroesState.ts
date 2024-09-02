@@ -36,7 +36,6 @@ class HeroesState {
   }
 
   changeSpeed(id: string, speed: number) {
-    // this.heroesData[id].speed = speed
     this.heroesData = {
       ...this.heroesData,
       [id]: {
